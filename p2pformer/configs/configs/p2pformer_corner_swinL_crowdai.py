@@ -1,23 +1,34 @@
 _base_ = [
-    '../_base_/datasets/whu-mix_line.py',
+    '../_base_/datasets/crowdAI_line.py',
     '../_base_/default_runtime.py',
 ]
+pretrained = 'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_large_patch4_window12_384_22k.pth'
+depths = [2, 2, 18, 2]
 model = dict(
     type='P2PFormerSegmentor',
     backbone=dict(
-        type='DLASeg',
-        base_name='dla34',
-        pretrained=True,
-        down_ratio=4,
-        last_level=5,
-        out_channel=0,
-        cout=256,
-        use_dcn=True),
+        type='SwinTransformer',
+        pretrain_img_size=384,
+        embed_dims=192,
+        depths=depths,
+        num_heads=[6, 12, 24, 48],
+        window_size=12,
+        mlp_ratio=4,
+        qkv_bias=True,
+        qk_scale=None,
+        drop_rate=0.,
+        attn_drop_rate=0.,
+        drop_path_rate=0.3,
+        patch_norm=True,
+        out_indices=(0, 1, 2, 3),
+        with_cp=False,
+        convert_weights=True,
+        frozen_stages=-1,
+        init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
     neck=dict(
         type='MSDeformAttnFPN',
-        in_channels=[256, 256, 256, 256],
-        strides=[4, 4, 8, 16],
-        num_outs=4,
+        in_channels=[192, 384, 768, 1536],
+        num_outs=3,
         norm_cfg=dict(type='GN', num_groups=32),
         act_cfg=dict(type='ReLU'),
         encoder=dict(
@@ -60,7 +71,7 @@ model = dict(
         stacked_convs=4,
         feat_channels=256,
         regress_ranges=((-1, 128), (128, 256), (256, 1e6)),
-        strides=[4, 8, 16],
+        strides=[8, 16, 32],
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -115,7 +126,7 @@ model = dict(
                 return_intermediate=False,
                 num_layers=3,
                 transformerlayers=dict(
-                    type='DetrTransformerDecoderLayer',
+                    type='BaseTransformerLayer',
                     attn_cfgs=dict(
                         type='MultiheadAttention',
                         embed_dims=256,
@@ -144,7 +155,7 @@ model = dict(
             loss_weight=1.0 / 36,
         ),
     ),
-    detector_fpn_start_level=1, #start fron P3
+    detector_fpn_start_level=0, #start fron P3
     line_fpn=False,
     line_fpn_start_level=0,
     # training and testing settings
@@ -178,7 +189,7 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True, with_mask=True, poly2mask=False),
     dict(
         type='Resize',
-        img_scale=[(640, 320), (640, 640)],
+        img_scale=[(352, 224), (352, 352)],
         multiscale_mode='range',
         keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
@@ -193,7 +204,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(640, 640),
+        img_scale=(320, 320),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -222,5 +233,5 @@ optimizer_config = dict(grad_clip=dict(max_norm=0.1, norm_type=2))
 # learning policy
 lr_config = dict(policy='step', step=[18])
 runner = dict(type='EpochBasedRunner', max_epochs=24)
-evaluation = dict(metric=['bbox', 'segm'], interval=1)
+evaluation = dict(metric=['bbox', 'segm'], interval=24)
 checkpoint_config = dict(interval=1)

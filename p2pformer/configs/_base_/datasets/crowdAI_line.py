@@ -1,6 +1,6 @@
 # dataset settings
 dataset_type = 'WhuDataset'
-data_root = 'data/CrowdAI/'
+data_root = 'data/crowdai/'
 classes = ('building')
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
@@ -45,12 +45,12 @@ data = dict(
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'val/annotation-small.json',
-        img_prefix=data_root + 'val/images/',
+        ann_file=data_root + 'val/val/annotation-small.json',
+        img_prefix=data_root + 'val/val/images/',
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'val/annotation.json',
-        img_prefix=data_root + 'val/images/',
+        ann_file=data_root + 'val/val/annotation.json',
+        img_prefix=data_root + 'val/val/images/',
         pipeline=test_pipeline))
-evaluation = dict(metric=['bbox', 'segm'], interval=20)
+evaluation = dict(metric=['bbox', 'segm'], interval=25)

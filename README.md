@@ -24,6 +24,9 @@ pip install -e .
 ## Prepare datas
 Download the WHU, WHU-Mix and CrowdAI datastes, then change the data path in [whu_line.py](./p2pformer/configs/_base_/datasets/whu_line.py), [whu-mix_line.py](./p2pformer/configs/_base_/datasets/whu-mix_line.py) and [crowdAI_line](./p2pformer/configs/_base_/datasets/crowdAI_line.py).
 
+## Model Zoo
+The pretrained weights are available at [here](https://huggingface.co/zhangtao-whu/P2PFormer/tree/main).
+
 ## Getting Started
 
 ### train 

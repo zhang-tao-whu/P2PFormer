@@ -1,5 +1,5 @@
 _base_ = [
-    '../_base_/datasets/whu-mix_line.py',
+    '../_base_/datasets/crowdAI_line.py',
     '../_base_/default_runtime.py',
 ]
 
@@ -119,7 +119,7 @@ model = dict(
                 return_intermediate=False,
                 num_layers=3,
                 transformerlayers=dict(
-                    type='DetrTransformerDecoderLayer',
+                    type='BaseTransformerLayer',
                     attn_cfgs=dict(
                         type='MultiheadAttention',
                         embed_dims=256,
@@ -182,7 +182,7 @@ train_pipeline = [
     dict(type='LoadAnnotations', with_bbox=True, with_mask=True, poly2mask=False),
     dict(
         type='Resize',
-        img_scale=[(640, 320), (640, 640)],
+        img_scale=[(352, 224), (352, 352)],
         multiscale_mode='range',
         keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
@@ -197,7 +197,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(640, 640),
+        img_scale=(320, 320),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
